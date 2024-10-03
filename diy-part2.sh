@@ -22,3 +22,4 @@ sed -i 's/192.168.1.1/192.168.0.1/g' package/base-files/files/bin/config_generat
 
 # Modify hostname
 git clone https://github.com/gdy666/luci-app-lucky.git package/luci-app-lucky
+git clone https://github.com/morytyann/OpenWrt-mihomo.git package/luci-app-mihomo
