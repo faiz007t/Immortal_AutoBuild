@@ -35,10 +35,18 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 120
 
-    steps:
+  steps:
     - name: Checkout
       uses: actions/checkout@main
 
+    - name: Cache dependencies
+      uses: actions/cache@main
+      with:
+        path: |
+          /workdir/ccache
+          openwrt/dl
+        key: ${{ runner.os }}-${{ hashFiles('$FEEDS_CONF', '$CONFIG_FILE') }}
+        
     - name: Initialization environment
       env:
         DEBIAN_FRONTEND: noninteractive
