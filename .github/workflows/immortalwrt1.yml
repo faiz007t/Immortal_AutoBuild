@@ -18,7 +18,7 @@ on:
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
-  REPO_BRANCH: main
+  REPO_BRANCH: master    # <--- CHANGED from 'main' to 'master'
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: aw1000_2.config
   DIY_P1_SH: diy-part1.sh
