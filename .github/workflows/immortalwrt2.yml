@@ -18,7 +18,7 @@ on:
 
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt.git
-  REPO_BRANCH: main
+  REPO_BRANCH: master          # CHANGED from 'main' to 'master'
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: aw1000.config
   DIY_P1_SH: diy-part1.sh
@@ -56,13 +56,13 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-        
+
     - name: Cache
       uses: klever1988/cachewrtbuild@main
       with:
         ccache: 'true'
         prefix: ${{ github.workspace }}/openwrt
-        
+
     - name: Load custom feeds
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
@@ -108,20 +108,29 @@ jobs:
       if: (!cancelled())
       run: df -hT
 
-    - name: Upload bin directory
-      uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
-      with:
-        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: openwrt/bin
+    - name: Debug firmware output
+      run: |
+        echo "Listing openwrt/bin/targets:"
+        ls -lR openwrt/bin/targets || echo "No targets directory found!"
+
+    - name: Find firmware directory
+      id: find_firmware
+      run: |
+        FIRMWARE_DIR=$(find openwrt/bin/targets -type d -mindepth 2 -maxdepth 2 | head -n 1)
+        if [ -z "$FIRMWARE_DIR" ]; then
+          echo "❌ Firmware output directory not found! Build may have failed."
+          exit 1
+        fi
+        echo "Firmware directory found: $FIRMWARE_DIR"
+        echo "FIRMWARE=$FIRMWARE_DIR" >> $GITHUB_ENV
+        echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Organize files
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      if: steps.find_firmware.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd openwrt/bin/targets/*/*
+        cd $FIRMWARE
         rm -rf packages
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware directory
@@ -137,7 +146,6 @@ jobs:
       run: |
         echo "release_tag=immortalwrt2-$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
         touch release.txt
-        [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Upload firmware to release
