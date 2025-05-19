@@ -10,7 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: immortalwrt2
+name: ImmortalWRT2
 
 on:
   repository_dispatch:
@@ -50,7 +50,7 @@ jobs:
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
 
-    - name: Clone source code
+    - name: Clone ImmortalWRT Source
       working-directory: /workdir
       run: |
         df -hT $PWD
