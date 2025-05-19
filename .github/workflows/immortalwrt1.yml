@@ -10,7 +10,7 @@
 # See /LICENSE for more information.
 #
 
-name: immortalwrt
+name: ImmortalWRT
 
 on:
   workflow_dispatch:
@@ -59,7 +59,7 @@ jobs:
           sudo mkdir -p /workdir
           sudo chown "$USER":"$(id -gn)" /workdir
 
-      - name: Clone ImmortalWrt source
+      - name: Clone ImmortalWRT Source
         working-directory: /workdir
         run: |
           df -hT "$PWD"
